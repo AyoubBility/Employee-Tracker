@@ -17,5 +17,10 @@
   "bugs": {
     "url": "https://github.com/AyoubBility/Employee-Tracker/issues"
   },
-  "homepage": "https://github.com/AyoubBility/Employee-Tracker#readme"
+  "homepage": "https://github.com/AyoubBility/Employee-Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^8.2.4",
+    "mysql2": "^2.2.5"
+  }
 }
