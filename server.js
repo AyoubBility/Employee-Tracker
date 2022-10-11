@@ -19,11 +19,11 @@ const db = mysql.createConnection({
 db.connect(function (err) {
     if (err) throw err;
     console.log("Connected to the employee_db database.");
-    opening_prompt();
+    start();
 });
 
 
-function opening_prompt(){
+function start(){
     inquirer
     .prompt({
       type: "list",
@@ -77,13 +77,13 @@ function view_employee() {
   
     var query =
       `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
-    FROM employee e
-    LEFT JOIN role r
-      ON e.role_id = r.id
-    LEFT JOIN department d
-    ON d.id = r.department_id
-    LEFT JOIN employee m
-      ON m.id = e.manager_id`
+        FROM employee e
+        LEFT JOIN role r
+        ON e.role_id = r.id
+        LEFT JOIN department d
+        ON d.id = r.department_id
+        LEFT JOIN employee m
+        ON m.id = e.manager_id`
   
     db.query(query, function (err, res) {
       if (err) throw err;
@@ -91,7 +91,7 @@ function view_employee() {
       console.table(res);
       console.log("Employees viewed!\n");
   
-      opening_prompt();
+      start();
     });
   
 }
@@ -157,7 +157,113 @@ function prompt_insert(roleChoices) {
                 console.table(res);
                 console.log(res.insertedRows + "Inserted successfully!\n");
 
-                opening_prompt();
+                start();
             });
         });
+}
+
+function view_department() {
+    console.log("Viewing employees by department\n");
+  
+    var query =
+      `SELECT d.id, d.name, r.salary AS budget
+        FROM employee e
+        LEFT JOIN role r
+        ON e.role_id = r.id
+        LEFT JOIN department d
+        ON d.id = r.department_id
+        GROUP BY d.id, d.name`
+  
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+  
+      const departmentChoices = res.map(data => ({
+        value: data.id, name: data.name
+      }));
+  
+      console.table(res);
+      console.log("Department view succeed!\n");
+  
+      promptDepartment(departmentChoices);
+    });
+}
+
+function promptDepartment(departmentChoices) {
+
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "departmentId",
+          message: "Which department would you choose?",
+          choices: departmentChoices
+        }
+      ])
+      .then(function (answer) {
+        console.log("answer ", answer.departmentId);
+  
+        var query =
+          `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department 
+            FROM employee e
+            JOIN role r
+            ON e.role_id = r.id
+            JOIN department d
+            ON d.id = r.department_id
+            WHERE d.id = ?`
+  
+        connection.query(query, answer.departmentId, function (err, res) {
+          if (err) throw err;
+  
+          console.table("response ", res);
+          console.log(res.affectedRows + "Employees are viewed!\n");
+  
+          start();
+        });
+      });
+}
+
+function remove_employees() {
+    console.log("Deleting an employee");
+  
+    var query =
+      `SELECT e.id, e.first_name, e.last_name
+        FROM employee e`
+  
+    connection.query(query, function (err, res) {
+      if (err) throw err;
+  
+      const deleteEmployeeChoices = res.map(({ id, first_name, last_name }) => ({
+        value: id, name: `${id} ${first_name} ${last_name}`
+      }));
+  
+      console.table(res);
+      console.log("ArrayToDelete!\n");
+  
+      promptDelete(deleteEmployeeChoices);
+    });
+}
+
+function promptDelete(deleteEmployeeChoices) {
+
+    inquirer
+      .prompt([
+        {
+          type: "list",
+          name: "employeeId",
+          message: "Which employee do you want to remove?",
+          choices: deleteEmployeeChoices
+        }
+      ])
+      .then(function (answer) {
+  
+        var query = `DELETE FROM employee WHERE ?`;
+        connection.query(query, { id: answer.employeeId }, function (err, res) {
+          if (err) throw err;
+  
+          console.table(res);
+          console.log(res.affectedRows + "Deleted!\n");
+  
+          firstPrompt();
+        });
+      });
 }
