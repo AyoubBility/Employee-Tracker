@@ -10,4 +10,4 @@ SO THAT I can organize and plan my business
 
 ## User Story
 
-[Demo](https://drive.google.com/file/d/1v-uYMoKojJ8slLkAL0wlTXIt_q5WnV4I/view?usp=sharing)
+[Demo](https://drive.google.com/file/d/1F6PuNviIRMNeZUjzOGqv4dT4svyHX5kv/view?usp=share_link)
